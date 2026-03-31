@@ -3,10 +3,11 @@ import { SequelizeModule } from '@nestjs/sequelize';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './user/users.module';
 import { User } from './user/users.model';
+import { ListModule } from './list/list.module';
+import { List } from './list/list.model';
 
 @Module({
   imports: [
@@ -19,15 +20,16 @@ import { User } from './user/users.model';
       username: process.env.DB_USER || 'root',
       password: process.env.DB_PASSWORD || '',
       database: process.env.DB_NAME || 'libheros',
-      models: [User], 
+      models: [User, List], 
       autoLoadModels: true, 
       synchronize: true,    
       logging: true,
     }),
 
-    // Modules de l’app
+    // Modules de l'app
     AuthModule,
     UsersModule,
+    ListModule,
   ],
   controllers: [AppController],
   providers: [AppService],
