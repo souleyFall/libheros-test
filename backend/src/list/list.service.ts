@@ -16,10 +16,16 @@ export class ListService {
     return list || null;
   }
 
-  async create(dto: CreateListDto) {
+  async findByUser(userId: number) {
+    return this.listModel.findAll({
+      where: { userId },
+    });
+  }
+
+  async create(dto: CreateListDto, userId: number) {
     return this.listModel.create({
       title: dto.title,
-      userId: dto.userId,
+      userId,
     });
   }
 }

@@ -1,6 +1,9 @@
-import { Controller, Get, Post, Param, Body, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Param, Body, ParseIntPipe, UseGuards } from '@nestjs/common';
 import { ListService } from './list.service';
 import { CreateListDto } from './dto/create-list.dto';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { User } from '../user/users.model';
 
 @Controller('lists')
 export class ListController {
@@ -11,13 +14,20 @@ export class ListController {
     return this.listService.findAll();
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Get('me')
+  getMyLists(@CurrentUser() user: User) {
+    return this.listService.findByUser(user.id);
+  }
+
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.listService.findById(id);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post()
-  create(@Body() createListDto: CreateListDto) {
-    return this.listService.create(createListDto);
+  create(@Body() createListDto: CreateListDto, @CurrentUser() user: User) {
+    return this.listService.create(createListDto, user.id);
   }
 }
