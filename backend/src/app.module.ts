@@ -8,6 +8,8 @@ import { UsersModule } from './user/users.module';
 import { User } from './user/users.model';
 import { ListModule } from './list/list.module';
 import { List } from './list/list.model';
+import { TaskModule } from './task/task.module';
+import { Task } from './task/task.model';
 
 @Module({
   imports: [
@@ -20,7 +22,7 @@ import { List } from './list/list.model';
       username: process.env.DB_USER || 'root',
       password: process.env.DB_PASSWORD || '',
       database: process.env.DB_NAME || 'libheros',
-      models: [User, List], 
+      models: [User, List, Task], 
       autoLoadModels: true, 
       synchronize: true,    
       logging: true,
@@ -30,6 +32,7 @@ import { List } from './list/list.model';
     AuthModule,
     UsersModule,
     ListModule,
+    TaskModule,
   ],
   controllers: [AppController],
   providers: [AppService],
