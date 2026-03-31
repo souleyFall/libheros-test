@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Param, Body, ParseIntPipe, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Param, Body, ParseIntPipe, UseGuards } from '@nestjs/common';
 import { ListService } from './list.service';
 import { CreateListDto } from './dto/create-list.dto';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
@@ -29,5 +29,11 @@ export class ListController {
   @Post()
   create(@Body() createListDto: CreateListDto, @CurrentUser() user: User) {
     return this.listService.create(createListDto, user.id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete(':id')
+  delete(@Param('id', ParseIntPipe) id: number, @CurrentUser() user: User) {
+    return this.listService.delete(id, user.id);
   }
 }
