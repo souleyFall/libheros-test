@@ -99,6 +99,10 @@ const handleToggleTask = async (task: Task) => {
 watch(() => props.selectedListId, () => {
   fetchTasks();
 });
+
+defineExpose({
+  fetchTasks,
+});
 </script>
 
 <template>

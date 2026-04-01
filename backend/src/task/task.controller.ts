@@ -17,6 +17,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { User } from '../user/users.model';
 
 @Controller('tasks')
+@UseGuards(JwtAuthGuard)
 export class TaskController {
   constructor(private readonly taskService: TaskService) {}
 
@@ -30,7 +31,6 @@ export class TaskController {
     return this.taskService.findByListId(listId);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get('me')
   getMyTasks(@CurrentUser() user: User) {
     return this.taskService.findByUser(user.id);
@@ -41,19 +41,16 @@ export class TaskController {
     return this.taskService.findById(id);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Post()
   create(@Body() createTaskDto: CreateTaskDto, @CurrentUser() user: User) {
     return this.taskService.create(createTaskDto, user.id);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Put(':id')
   update(@Param('id', ParseIntPipe) id: number, @Body() updateTaskDto: UpdateTaskDto) {
     return this.taskService.update(id, updateTaskDto);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Delete(':id')
   delete(@Param('id', ParseIntPipe) id: number) {
     return this.taskService.delete(id);

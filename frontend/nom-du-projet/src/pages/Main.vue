@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
+import type { InstanceType } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuth } from '../stores/auth';
 import LeftSidebar from '../components/LeftSidebar.vue';
@@ -21,6 +22,7 @@ const { clearToken, user } = useAuth();
 const selectedListId = ref<string | null>(null);
 const selectedTask = ref<Task | null>(null);
 const isSidebarCollapsed = ref(false);
+const mainContent = ref<InstanceType<typeof MainContent> | null>(null);
 
 const handleLogout = () => {
   clearToken();
@@ -43,6 +45,7 @@ const handleListDeleted = () => {
 
 const handleTaskDeleted = () => {
   selectedTask.value = null;
+  mainContent.value?.fetchTasks();
 };
 
 const onSidebarCollapsed = (collapsed: boolean) => {
@@ -72,6 +75,7 @@ const onSidebarCollapsed = (collapsed: boolean) => {
         @update:collapsed="onSidebarCollapsed"
       />
       <MainContent
+        ref="mainContent"
         :selected-list-id="selectedListId"
         @select-task="handleSelectTask"
         @task-updated="() => {}"

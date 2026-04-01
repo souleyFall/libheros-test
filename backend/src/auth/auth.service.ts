@@ -56,7 +56,7 @@ export class AuthService {
       throw new UnauthorizedException('Identifiants invalides');
     }
 
-    const payload = { sub: user.id, email: user.email }; // role si tu veux
+    const payload = { sub: user.id, email: user.email }; 
     return {
       access_token: this.jwtService.sign(payload),
       user: {
