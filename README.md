@@ -1,4 +1,4 @@
-# Lib'Heros - Application de Gestion de Tâches
+# LibHeros - Application de Gestion de Tâches
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Vue.js](https://img.shields.io/badge/Vue.js-3.x-green)
