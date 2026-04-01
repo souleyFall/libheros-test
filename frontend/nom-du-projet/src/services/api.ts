@@ -26,7 +26,7 @@ export const authAPI = {
 // List API
 export const listAPI = {
   getAll: () => api.get('/lists/me'),
-  create: (data: { name: string }) => api.post('/lists', data),
+  create: (data: { title: string }) => api.post('/lists', data),
   delete: (id: string) => api.delete(`/lists/${id}`),
 };
 

@@ -64,7 +64,7 @@ const handleCreateList = async () => {
 
   loading.value = true;
   try {
-    await listAPI.create({ name: newListName.value });
+    await listAPI.create({ title: newListName.value });
     newListName.value = '';
     await fetchLists();
   } catch (error) {
