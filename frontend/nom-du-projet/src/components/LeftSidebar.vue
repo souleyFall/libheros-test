@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, defineEmits, nextTick } from 'vue';
 import { listAPI } from '../services/api';
 
 interface List {
@@ -14,12 +14,20 @@ const props = defineProps({
 const emit = defineEmits<{
   selectList: [id: string];
   listDeleted: [];
+  'update:collapsed': [collapsed: boolean];
 }>();
 
 const lists = ref<List[]>([]);
 const newListName = ref('');
 const loading = ref(false);
 const deleteConfirm = ref<string | null>(null);
+const isCollapsed = ref(false);
+const listInput = ref<HTMLInputElement | null>(null);
+
+const toggleSidebar = () => {
+  isCollapsed.value = !isCollapsed.value;
+  emit('update:collapsed', isCollapsed.value);
+};
 
 const fetchLists = async () => {
   try {
@@ -27,6 +35,18 @@ const fetchLists = async () => {
     lists.value = response.data;
   } catch (error) {
     console.error('Erreur lors du chargement des listes', error);
+  }
+};
+
+const onClickCreate = () => {
+  if (isCollapsed.value) {
+    isCollapsed.value = false;
+    emit('update:collapsed', false);
+    nextTick(() => {
+      listInput.value?.focus();
+    });
+  } else {
+    handleCreateList();
   }
 };
 
@@ -72,20 +92,27 @@ onMounted(fetchLists);
 </script>
 
 <template>
-  <aside class="left-sidebar">
+  <aside class="left-sidebar" :class="{ collapsed: isCollapsed }">
     <div class="sidebar-header">
-      <h2>LibHeros</h2>
+      <h2 v-if="!isCollapsed">LibHeros</h2>
+      <button class="toggle-btn" @click="toggleSidebar">
+        <svg v-if="!isCollapsed" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m11 17-5-5 5-5"/><path d="m18 17-5-5 5-5"/></svg>
+        <svg v-else xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m13 17 5-5-5-5"/><path d="m6 17 5-5-5-5"/></svg>
+      </button>
     </div>
 
     <div class="create-list">
       <input
+        v-if="!isCollapsed"
+        ref="listInput"
         v-model="newListName"
         type="text"
         placeholder="Nouvelle liste..."
         @keyup.enter="handleCreateList"
       />
-      <button @click="handleCreateList" :disabled="loading">
-        {{ loading ? '...' : '+' }}
+      <button @click="onClickCreate" :disabled="loading">
+        <span v-if="loading">...</span>
+        <svg v-else xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" x2="12" y1="5" y2="19"/><line x1="5" x2="19" y1="12" y2="12"/></svg>
       </button>
     </div>
 
@@ -95,11 +122,14 @@ onMounted(fetchLists);
         :key="list.id"
         class="list-item"
         :class="{ active: selectedListId === list.id }"
+        :title="isCollapsed ? list.title : ''"
       >
         <div class="list-content" @click="emit('selectList', list.id)">
-          <span class="list-name">{{ list.title }}</span>
+           <svg v-if="isCollapsed" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" x2="21" y1="6" y2="6"/><line x1="8" x2="21" y1="12" y2="12"/><line x1="8" x2="21" y1="18" y2="18"/><line x1="3" x2="3.01" y1="6" y2="6"/><line x1="3" x2="3.01" y1="12" y2="12"/><line x1="3" x2="3.01" y1="18" y2="18"/></svg>
+          <span v-if="!isCollapsed" class="list-name">{{ list.title }}</span>
         </div>
         <button
+          v-if="!isCollapsed"
           class="delete-btn"
           @click="deleteConfirm = list.id"
           title="Supprimer cette liste"
@@ -123,8 +153,8 @@ onMounted(fetchLists);
         </div>
       </div>
 
-      <div v-if="lists.length === 0" class="empty-state">
-        Aucune liste yet. Créez-en une!
+      <div v-if="lists.length === 0 && !isCollapsed" class="empty-state">
+        Aucune liste. Créez-en une!
       </div>
     </div>
   </aside>
@@ -141,6 +171,12 @@ onMounted(fetchLists);
   border-right: 1px solid #1a202c;
   overflow-y: auto;
   height: 100vh;
+  transition: width 0.3s ease;
+  position: relative;
+}
+
+.left-sidebar.collapsed {
+  width: 80px;
 }
 
 .sidebar-header {
@@ -148,12 +184,41 @@ onMounted(fetchLists);
   margin-bottom: 1.5rem;
   border-bottom: 1px solid #4a5568;
   padding-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.left-sidebar.collapsed .sidebar-header {
+  padding: 0 1rem;
+  justify-content: center;
 }
 
 .sidebar-header h2 {
   margin: 0;
   font-size: 1.5rem;
   color: #667eea;
+  white-space: nowrap;
+}
+
+.toggle-btn {
+  background: #4a5568;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  transition: background 0.2s;
+  padding: 0;
+}
+
+.toggle-btn:hover {
+  background: #667eea;
 }
 
 .create-list {
@@ -161,6 +226,11 @@ onMounted(fetchLists);
   gap: 0.5rem;
   padding: 0 1rem;
   margin-bottom: 1.5rem;
+  align-items: center;
+}
+
+.left-sidebar.collapsed .create-list {
+  justify-content: center;
 }
 
 .create-list input {
@@ -184,14 +254,21 @@ onMounted(fetchLists);
 }
 
 .create-list button {
-  padding: 0.5rem 1rem;
+  padding: 0.5rem;
+  width: 36px;
+  height: 36px;
   background: #667eea;
   color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
   font-weight: bold;
+  font-size: 1.2rem;
   transition: background 0.2s;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .create-list button:hover:not(:disabled) {
@@ -217,6 +294,11 @@ onMounted(fetchLists);
   transition: all 0.2s;
   position: relative;
   gap: 0.5rem;
+  white-space: nowrap;
+}
+
+.left-sidebar.collapsed .list-item {
+  justify-content: center;
 }
 
 .list-item:hover {
@@ -232,6 +314,13 @@ onMounted(fetchLists);
   flex: 1;
   cursor: pointer;
   min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.left-sidebar.collapsed .list-content {
+  flex: 0;
 }
 
 .list-name {
@@ -239,6 +328,16 @@ onMounted(fetchLists);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.list-initial {
+  font-size: 1.2rem;
+  font-weight: bold;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .delete-btn {

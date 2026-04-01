@@ -20,6 +20,7 @@ const { clearToken, user } = useAuth();
 
 const selectedListId = ref<string | null>(null);
 const selectedTask = ref<Task | null>(null);
+const isSidebarCollapsed = ref(false);
 
 const handleLogout = () => {
   clearToken();
@@ -43,6 +44,10 @@ const handleListDeleted = () => {
 const handleTaskDeleted = () => {
   selectedTask.value = null;
 };
+
+const onSidebarCollapsed = (collapsed: boolean) => {
+  isSidebarCollapsed.value = collapsed;
+};
 </script>
 
 <template>
@@ -59,11 +64,12 @@ const handleTaskDeleted = () => {
     </header>
 
     <!-- Contenu principal -->
-    <div class="layout-container">
+    <div class="layout-container" :class="{ 'sidebar-collapsed': isSidebarCollapsed }">
       <LeftSidebar
         :selected-list-id="selectedListId"
         @select-list="handleSelectList"
         @list-deleted="handleListDeleted"
+        @update:collapsed="onSidebarCollapsed"
       />
       <MainContent
         :selected-list-id="selectedListId"
@@ -133,5 +139,10 @@ const handleTaskDeleted = () => {
   display: flex;
   flex: 1;
   overflow: hidden;
+  transition: margin-left 0.3s ease;
+}
+
+.layout-container.sidebar-collapsed {
+  
 }
 </style>

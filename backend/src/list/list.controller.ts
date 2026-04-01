@@ -9,6 +9,7 @@ import { User } from '../user/users.model';
 export class ListController {
   constructor(private readonly listService: ListService) {}
 
+  @UseGuards(JwtAuthGuard)
   @Get()
   findAll() {
     return this.listService.findAll();
@@ -20,6 +21,7 @@ export class ListController {
     return this.listService.findByUser(user.id);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.listService.findById(id);
