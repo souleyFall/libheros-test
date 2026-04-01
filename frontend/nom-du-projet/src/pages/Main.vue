@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import type { InstanceType } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuth } from '../stores/auth';
 import LeftSidebar from '../components/LeftSidebar.vue';
@@ -69,14 +68,14 @@ const onSidebarCollapsed = (collapsed: boolean) => {
     <!-- Contenu principal -->
     <div class="layout-container" :class="{ 'sidebar-collapsed': isSidebarCollapsed }">
       <LeftSidebar
-        :selected-list-id="selectedListId"
+        :selected-list-id="selectedListId ?? undefined"
         @select-list="handleSelectList"
         @list-deleted="handleListDeleted"
         @update:collapsed="onSidebarCollapsed"
       />
       <MainContent
         ref="mainContent"
-        :selected-list-id="selectedListId"
+        :selected-list-id="selectedListId ?? undefined"
         @select-task="handleSelectTask"
         @task-updated="() => {}"
       />

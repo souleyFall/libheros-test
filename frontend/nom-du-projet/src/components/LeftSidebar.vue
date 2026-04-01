@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, defineEmits, nextTick } from 'vue';
+import { ref, onMounted, nextTick } from 'vue';
 import { listAPI } from '../services/api';
 
 interface List {
@@ -64,7 +64,7 @@ const handleCreateList = async () => {
 
   loading.value = true;
   try {
-    await listAPI.create({ title: newListName.value });
+    await listAPI.create({ name: newListName.value });
     newListName.value = '';
     await fetchLists();
   } catch (error) {
