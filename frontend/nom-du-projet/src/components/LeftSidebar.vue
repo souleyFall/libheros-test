@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, defineEmits, nextTick } from 'vue';
+import { ref, onMounted, nextTick } from 'vue';
 import { listAPI } from '../services/api';
 
 interface List {
