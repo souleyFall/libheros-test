@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
@@ -13,22 +13,28 @@ import { Task } from './task/task.model';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }), 
-
-    SequelizeModule.forRoot({
-      dialect: 'mysql',
-      host: process.env.DB_HOST,
-      port: Number(process.env.DB_PORT),
-      username: process.env.DB_USER,
-      password: process.env.DB_PASSWORD,
-      database: process.env.DB_NAME,
-      models: [User, List, Task], 
-      autoLoadModels: true, 
-      synchronize: true,    
-      logging: true,
+    ConfigModule.forRoot({
+      isGlobal: true,
     }),
 
-    // Modules de l'app
+    SequelizeModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        dialect: 'mysql',
+        host: configService.get<string>('DB_HOST'),
+        port: Number(configService.get<number>('DB_PORT')),
+        username: configService.get<string>('DB_USER'),
+        password: configService.get<string>('DB_PASSWORD'),
+        database: configService.get<string>('DB_NAME'),
+        models: [User, List, Task],
+        autoLoadModels: true,
+        synchronize: true,
+        logging: true,
+      }),
+    }),
+
+    // Modules
     AuthModule,
     UsersModule,
     ListModule,
